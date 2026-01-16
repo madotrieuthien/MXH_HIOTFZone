@@ -1,0 +1,301 @@
+﻿@{
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+}
+
+@section styles {
+    <style>
+        /* Container tổng */
+        .friends-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 70px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            height: fit-content;
+        }
+
+            .sidebar .search-bar,
+            .sidebar .filter-bar {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .sidebar ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            .sidebar li {
+                padding: 12px 10px;
+                margin-bottom: 5px;
+                cursor: pointer;
+                border-radius: 6px;
+                transition: background 0.3s;
+            }
+
+                .sidebar li:hover, .sidebar li.active {
+                    background-color: #007bff;
+                    color: #fff;
+                }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+        }
+
+        /* Grid bạn bè */
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .friend-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+            .friend-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+            }
+
+            .friend-card img {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                object-fit: cover;
+                margin-bottom: 10px;
+            }
+
+            .friend-card h6 {
+                margin-bottom: 10px;
+                font-weight: 600;
+            }
+
+            .friend-card button {
+                margin-top: 5px;
+                width: 100%;
+            }
+
+        /* Ẩn / hiện tab */
+        .tab-hidden {
+            display: none;
+        }
+
+        .tab-active {
+            display: grid;
+        }
+    </style>
+}
+
+<div class="container mt-4">
+    <div class="friends-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Tìm kiếm -->
+            <div class="search-bar">
+                <input type="text" class="form-control" placeholder="Tìm kiếm bạn bè..." id="searchInput">
+                <button class="btn btn-primary btn-sm" onclick="applyFilters()">Tìm</button>
+            </div>
+
+            <!-- Lọc theo Giới tính & Địa chỉ -->
+            <div class="filter-bar">
+                <select class="form-select form-select-sm" id="genderFilter">
+                    <option value="">Giới tính</option>
+                    @foreach (var gender in ViewBag.Genders)
+                    {
+                        <option value="@gender">@gender</option>
+                    }
+                </select>
+
+                <select class="form-select form-select-sm" id="locationFilter">
+                    <option value="">Địa chỉ</option>
+                    @foreach (var address in ViewBag.Addresses)
+                    {
+                        <option value="@address">@address</option>
+                    }
+                </select>
+            </div>
+
+
+            <!-- Tabs -->
+            <ul>
+                <li id="btn-friends" class="active" onclick="showTab('friends', this)">Bạn Bè</li>
+                <li id="btn-requests" onclick="showTab('requests', this)">Lời mời kết bạn</li>
+                <li id="btn-world" onclick="showTab('world', this)">Gợi ý bạn bè</li>
+            </ul>
+        </div>
+
+        <!-- Nội dung chính -->
+        <div class="main-content">
+            <!-- Bạn bè -->
+            <div id="friends" class="friends-grid tab-active">
+                @if (ViewBag.BanBe != null)
+                {
+                    foreach (var u in ViewBag.BanBe as List<MXH_HIOTFZone.Models.NguoiDung>)
+                    {
+                        string avatar = "/Images/Avatar/" + u.Avatar;
+                        <div class="friend-card" data-gender="@u.GioiTinh" data-location="@u.DiaChi">
+                            <img src="@avatar" alt="Avatar">
+                            <h6>@u.TenNguoiDung</h6>
+                            <p style="display:none">@u.GioiTinh - @u.DiaChi</p>
+
+                            <a href="/HIOTFZone_BanBe/TrangCaNhanBanBe/@u.NguoiDungID"
+                               class="btn btn-sm btn-primary">Xem trang cá nhân</a>
+
+                            <a href="/HIOTFZone_BanBe/XoaBanBe/@u.NguoiDungID"
+                               class="btn btn-sm btn-danger mt-1">Xóa bạn</a>
+                        </div>
+                    }
+                }
+            </div>
+
+
+            <!-- Lời mời kết bạn -->
+            <div id="requests" class="friends-grid tab-hidden">
+                @if (ViewBag.LoiMoi != null)
+                {
+                    foreach (var u in ViewBag.LoiMoi as List<MXH_HIOTFZone.Models.NguoiDung>)
+                    {
+                        string avatar = "/Images/Avatar/" + u.Avatar;
+                        int loiMoiID = ViewBag.LoiMoiID[u.NguoiDungID];
+
+                        <div class="friend-card" data-gender="@u.GioiTinh" data-location="@u.DiaChi">
+                            <img src="@avatar" alt="Avatar">
+                            <h6>@u.TenNguoiDung</h6>
+                            <p style="display:none">@u.GioiTinh - @u.DiaChi</p>
+
+                            <a href="/HIOTFZone_BanBe/TrangCaNhanBanBe/@u.NguoiDungID"
+                               class="btn btn-sm btn-primary">Xem trang cá nhân</a>
+
+                            <a href="/HIOTFZone_BanBe/ChapNhan/@loiMoiID"
+                               class="btn btn-sm btn-success mt-1">Chấp nhận</a>
+
+                            <a href="/HIOTFZone_BanBe/TuChoi?loiMoiID=@loiMoiID"
+                               class="btn btn-sm btn-danger mt-1">Từ chối</a>
+                        </div>
+                    }
+                }
+            </div>
+
+
+            <!-- Gợi ý bạn bè -->
+            <div id="world" class="friends-grid tab-hidden">
+                @if (ViewBag.GoiYBanBe != null)
+                {
+                    foreach (var u in ViewBag.GoiYBanBe as List<MXH_HIOTFZone.Models.NguoiDung>)
+                    {
+                        string avatar = "/Images/Avatar/" + u.Avatar;
+
+                        <div class="friend-card" data-gender="@u.GioiTinh" data-location="@u.DiaChi">
+                            <img src="@avatar" alt="Avatar">
+                            <h6>@u.TenNguoiDung</h6>
+                            <p style="display:none">@u.GioiTinh - @u.DiaChi</p>
+
+                            <a href="/HIOTFZone_BanBe/TrangCaNhanBanBe/@u.NguoiDungID"
+                               class="btn btn-sm btn-primary">Xem trang cá nhân</a>
+
+                            <a href="/HIOTFZone_BanBe/GuiLoiMoiKetBan/@u.NguoiDungID"
+                               class="btn btn-sm btn-success mt-1">Thêm bạn</a>
+                        </div>
+                    }
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // 1. Hàm hiển thị Tab (Đã nâng cấp)
+        function showTab(tabId, el) {
+            // A. Ẩn/Hiện giao diện (Logic cũ)
+            document.querySelectorAll('.friends-grid').forEach(tab => {
+                tab.classList.add('tab-hidden');
+                tab.classList.remove('tab-active');
+            });
+
+            document.getElementById(tabId).classList.remove('tab-hidden');
+            document.getElementById(tabId).classList.add('tab-active');
+
+            // B. Đổi màu nút Sidebar
+            document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+            if (el) {
+                el.classList.add('active');
+            }
+
+            // C. Áp dụng bộ lọc tìm kiếm
+            applyFilters();
+
+            // D. MỚI: Cập nhật URL trên thanh địa chỉ (để F5 vẫn giữ nguyên tab)
+            // Nếu tab là 'friends' thì xóa query param cho gọn, ngược lại thì thêm ?tab=...
+            const url = new URL(window.location);
+            if (tabId === 'friends') {
+                url.searchParams.delete('tab');
+            } else {
+                url.searchParams.set('tab', tabId);
+            }
+            window.history.pushState({}, '', url);
+        }
+
+        // 2. Logic lọc (Giữ nguyên)
+        function applyFilters() {
+            var term = document.getElementById('searchInput').value.toLowerCase();
+            var gender = document.getElementById('genderFilter').value;
+            var location = document.getElementById('locationFilter').value;
+
+            document.querySelectorAll('.friends-grid.tab-active .friend-card').forEach(card => {
+                var name = card.querySelector('h6').innerText.toLowerCase();
+                var cardGender = card.getAttribute('data-gender');
+                var cardLocation = card.getAttribute('data-location');
+
+                var matchSearch = name.includes(term);
+                var matchGender = gender === "" || cardGender === gender;
+                var matchLocation = location === "" || cardLocation === location;
+
+                card.style.display = (matchSearch && matchGender && matchLocation) ? '' : 'none';
+            });
+        }
+
+        // 3. MỚI: Tự động chuyển tab khi trang vừa load (Xử lý cho Thông báo)
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lấy tham số ?tab=... trên URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentTab = urlParams.get('tab');
+
+            // Kiểm tra và kích hoạt tab tương ứng
+            if (currentTab === 'requests') {
+                // Giả lập cú click vào nút "Lời mời"
+                var btn = document.getElementById('btn-requests');
+                if (btn) showTab('requests', btn);
+            }
+            else if (currentTab === 'world') {
+                // Giả lập cú click vào nút "Gợi ý"
+                var btn = document.getElementById('btn-world');
+                if (btn) showTab('world', btn);
+            }
+            // Mặc định là 'friends' thì không cần làm gì vì HTML đã set active rồi
+        });
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('genderFilter').addEventListener('change', applyFilters);
+        document.getElementById('locationFilter').addEventListener('change', applyFilters);
+    </script>
+}

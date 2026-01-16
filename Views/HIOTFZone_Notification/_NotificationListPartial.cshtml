@@ -1,0 +1,58 @@
+﻿@model IEnumerable<MXH_HIOTFZone.Models.ThongBao>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var item in Model)
+    {
+        // 1. Xác định màu nền
+        string bgClass = (item.DaDoc == true) ? "bg-white" : "bg-light";
+
+        // 2. Xử lý Avatar người gửi
+        string avatarSender = "/Images/Avatar/default.png"; // Giá trị dự phòng
+
+        // Kiểm tra: Nếu đối tượng Người gửi tồn tại VÀ có Avatar
+        // Lưu ý: item.NguoiDung1 tương ứng với NguoiGuiID (Do bạn đã Include ở controller)
+        if (item.NguoiDung != null && !string.IsNullOrEmpty(item.NguoiDung.Avatar))
+        {
+            avatarSender = "/Images/Avatar/" + item.NguoiDung.Avatar;
+        }
+
+        <li class="@bgClass border-bottom">
+            <a href="@item.Link" class="dropdown-item d-flex align-items-center py-3 text-wrap" style="white-space: normal;">
+                <div class="flex-shrink-0 me-3">
+                    <img src="@avatarSender" class="rounded-circle" width="40" height="40" alt="Avatar" style="object-fit:cover;">
+                </div>
+                <div class="flex-grow-1">
+                    <p class="mb-1 small">@Html.Raw(item.NoiDung)</p>
+                    <small class="text-muted" style="font-size: 11px;">
+                        @* Hiển thị thời gian *@
+                        @CalculateTimeAgo(item.NgayTao)
+                    </small>
+                </div>
+                @if (item.DaDoc != true)
+                {
+                    <span class="badge bg-primary rounded-circle p-1 ms-2" style="width: 8px; height: 8px;"> </span>
+                }
+            </a>
+        </li>
+    }
+}
+else
+{
+    <li class="text-center p-4 text-muted">
+        <i class="fa-regular fa-bell-slash fa-2x mb-2"></i>
+        <p class="m-0 small">Không có thông báo mới</p>
+    </li>
+}
+
+@functions {
+    public string CalculateTimeAgo(DateTime? date)
+    {
+        if (!date.HasValue) return "";
+        var timeSpan = DateTime.Now - date.Value;
+        if (timeSpan.TotalMinutes < 1) return "Vừa xong";
+        if (timeSpan.TotalMinutes < 60) return (int)timeSpan.TotalMinutes + " phút trước";
+        if (timeSpan.TotalHours < 24) return (int)timeSpan.TotalHours + " giờ trước";
+        return date.Value.ToString("dd/MM/yyyy HH:mm");
+    }
+}

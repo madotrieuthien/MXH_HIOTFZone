@@ -1,0 +1,171 @@
+﻿@{
+    ViewBag.Title = "Đăng nhập";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Đăng nhập</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #ffb86b);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .auth-container::before {
+                content: "";
+                position: absolute;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle at top left, rgba(255,107,107,0.2), transparent 50%);
+                top: -50%;
+                left: -50%;
+                z-index: 0;
+                pointer-events: none;
+            }
+
+            .auth-container h2 {
+                margin-bottom: 30px;
+                color: #ff6b6b;
+                font-weight: 700;
+                font-size: 1.8rem;
+                position: relative;
+                z-index: 1;
+            }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+            .input-group i {
+                position: absolute;
+                top: 50%;
+                left: 12px;
+                transform: translateY(-50%);
+                color: #888;
+            }
+
+        .auth-container input {
+            width: 350px;
+            padding: 12px 12px 12px 40px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: 0.3s;
+        }
+
+            .auth-container input:focus {
+                border-color: #ff6b6b;
+                box-shadow: 0 0 5px rgba(255,107,107,0.5);
+            }
+
+        .auth-container button {
+            width: 200px;
+            padding: 12px;
+            background: #ff6b6b;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 1;
+        }
+
+            .auth-container button:hover {
+                background: #ff3b30;
+            }
+
+        .auth-footer {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            z-index: 1;
+            position: relative;
+        }
+
+            .auth-footer a {
+                color: #1877F2;
+                text-decoration: none;
+            }
+
+        /* Thông báo lỗi */
+        .alert {
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #fff;
+            background-color: #ff4c4c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Đăng nhập</h2>
+
+        @* Hiển thị thông báo lỗi nếu có *@
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert">
+                <i class="fa fa-exclamation-circle"></i> @ViewBag.Error
+            </div>
+        }
+
+        @using (Html.BeginForm("DangNhap", "HIOTFZone_User", FormMethod.Post))
+        {
+            <div class="input-group">
+                <i class="fa fa-envelope"></i>
+                <input type="email" name="Email" placeholder="Email" required />
+            </div>
+            <div class="input-group">
+                <i class="fa fa-lock"></i>
+                <input type="password" name="MatKhau" placeholder="Mật khẩu" required />
+            </div>
+            <button type="submit">Đăng nhập</button>
+        }
+
+        <div class="auth-footer">
+            <p>Chưa có tài khoản? <a href="@Url.Action("DangKy", "HIOTFZone_User")">Đăng ký</a></p>
+        </div>
+    </div>
+</body>
+</html>

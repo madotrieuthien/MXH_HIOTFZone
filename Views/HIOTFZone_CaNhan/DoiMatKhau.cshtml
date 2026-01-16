@@ -1,0 +1,51 @@
+﻿@model MXH_HIOTFZone.Models.NguoiDung
+@{
+    ViewBag.Title = "Đổi mật khẩu";
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+}
+
+<div class="container py-5" style="margin-top:70px">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>Đổi mật khẩu</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Thông báo lỗi hoặc thành công -->
+                    @if (TempData["ThongBao"] != null)
+                    {
+                        <div class="alert alert-info text-center">
+                            @TempData["ThongBao"]
+                        </div>
+                    }
+
+                    @using (Html.BeginForm("DoiMatKhau", "HIOTFZone_CaNhan", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu hiện tại:</label>
+                            <input type="password" name="MatKhauCu" class="form-control" required placeholder="Nhập mật khẩu hiện tại" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu mới:</label>
+                            <input type="password" name="MatKhauMoi" class="form-control" required placeholder="Nhập mật khẩu mới" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Xác nhận mật khẩu mới:</label>
+                            <input type="password" name="XacNhanMatKhauMoi" class="form-control" required placeholder="Nhập lại mật khẩu mới" />
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <button type="submit" class="btn btn-success">Đổi mật khẩu</button>
+                            <a href="@Url.Action("Index","HIOTFZone")" class="btn btn-secondary">Hủy</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

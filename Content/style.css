@@ -1,0 +1,138 @@
+﻿/* BODY */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f2f4f8;
+    margin: 0;
+}
+
+/* TOP NAVBAR */
+.topbar {
+    background: linear-gradient(90deg, #ff6b6b, #ffb86b);
+    color: white;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+}
+
+    .topbar .brand {
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .topbar .navbar-brand img {
+        width: 120px;
+        transition: width 0.3s;
+    }
+
+/* AVATAR */
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* SIDEBAR */
+.sidebar {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 20px;
+    overflow-y: auto;
+    max-height: calc(100vh - 40px);
+}
+
+/* COMPOSER */
+.composer {
+    position: sticky;
+    top: 60px;
+    z-index: 1050;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* POST CARD */
+.post-card {
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+    .post-card img {
+        width: 100%;
+        border-radius: 5px;
+        object-fit: cover;
+    }
+
+/* LIKE BUTTON */
+.like-btn {
+    cursor: pointer;
+    color: #ff3b30;
+    transition: transform 0.2s, color 0.2s, filter 0.2s;
+}
+
+    .like-btn:hover {
+        transform: scale(1.1);
+        color: #ff6b6b;
+        filter: brightness(1.2);
+    }
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .topbar .form-control {
+        width: 100px;
+    }
+
+        .topbar .form-control:focus {
+            width: 150px;
+        }
+
+    .topbar .d-flex.align-items-center.gap-2 a,
+    .topbar .d-flex.align-items-center.gap-2 .dropdown {
+        margin: 0 5px;
+    }
+
+    .topbar .navbar-brand img {
+        width: 100px;
+    }
+}
+
+@media (max-width: 768px) {
+    .topbar .form-control {
+        display: none;
+    }
+
+    .topbar form {
+        flex-grow: 0;
+    }
+
+    .topbar .d-flex.align-items-center.gap-2 {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+}
+
+@media (max-width: 576px) {
+    .topbar .navbar-brand img {
+        width: 80px;
+    }
+
+    .topbar .d-flex.align-items-center.gap-2 a i {
+        font-size: 0.9rem;
+    }
+
+    .topbar .dropdown .avatar {
+        width: 30px;
+        height: 30px;
+    }
+}

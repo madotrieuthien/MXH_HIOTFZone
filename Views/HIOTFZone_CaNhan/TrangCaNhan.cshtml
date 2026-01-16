@@ -1,0 +1,39 @@
+﻿@model MXH_HIOTFZone.Models.NguoiDung
+@{
+    ViewBag.Title = "TrangCaNhan";
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+}
+
+<div class="col-md-4 left-panel mx-auto"
+     style="padding-top:60px; height:90vh; overflow-y:auto; position:sticky; top:0; max-width:400px;">
+    <div class="card shadow-sm">
+        <div class="card-header text-center bg-primary text-white">
+            <h3>@Model.TenNguoiDung</h3>
+        </div>
+        <div class="card-body text-center">
+            <img src="~/Images/Avatar/@Model.Avatar" class="rounded-circle mb-3"
+                 style="width:180px; height:180px; object-fit:cover;" alt="Avatar" />
+
+            <ul class="list-group list-group-flush text-start">
+                <li class="list-group-item"><strong>Giới tính:</strong> @Model.GioiTinh</li>
+                <li class="list-group-item">
+                    <strong>Ngày sinh:</strong> @(Model.NgaySinh.HasValue ? Model.NgaySinh.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")
+                </li>
+                <li class="list-group-item">
+                    <strong>Địa chỉ:</strong> @(!string.IsNullOrEmpty(Model.DiaChi) ? Model.DiaChi : "Chưa cập nhật")
+                </li>
+                <li class="list-group-item">
+                    <strong>Email:</strong> @(!string.IsNullOrEmpty(Model.Email) ? Model.Email : "Chưa cập nhật")
+                </li>
+                <li class="list-group-item">
+                    <strong>Ngày tham gia:</strong> @(Model.NgayTao.HasValue ? Model.NgayTao.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")
+                </li>
+            </ul>
+
+            <a href="@Url.Action("ChinhSuaThongTin","HIOTFZone_CaNhan")" class="btn btn-secondary mt-3">Chỉnh sửa thông tin cá nhân</a>
+            <a href="@Url.Action("QuanLyBaiViet","HIOTFZone_CaNhan")" class="btn btn-secondary mt-3">Quản lý bài viết</a>
+
+        </div>
+    </div>
+</div>
+

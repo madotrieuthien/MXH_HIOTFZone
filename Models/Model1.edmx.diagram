@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="e284be7258fd4c5c8360a4db68f5638d" Name="Diagram1">
+        <EntityTypeShape EntityType="MXH_MiniModel.Admin" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.BaiDang" Width="1.5" PointX="3" PointY="6.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.BanBe" Width="1.5" PointX="3" PointY="9.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.BinhLuan" Width="1.5" PointX="5.25" PointY="9.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.CuocTroChuyen" Width="1.5" PointX="5.75" PointY="3.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.LoiMoiKetBan" Width="1.5" PointX="3" PointY="12.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.NguoiDung" Width="1.5" PointX="0.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.ThanhVienCuocTroChuyen" Width="1.5" PointX="6" PointY="13.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.ThichBaiDang" Width="1.5" PointX="5.25" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.ThongBao" Width="1.5" PointX="3" PointY="18.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="MXH_MiniModel.TinNhan" Width="1.5" PointX="8" PointY="9.125" IsExpanded="true" />
+        <AssociationConnector Association="MXH_MiniModel.FK__BaiDang__NguoiDu__3F466844" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__BinhLuan__BaiDan__48CFD27E" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__ThichBaiD__BaiDa__440B1D61" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__BanBe__NguoiDung__4E88ABD4" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__BanBe__NguoiDung__4F7CD00D" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__BinhLuan__NguoiD__49C3F6B7" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__ThanhVien__CuocT__5CD6CB2B" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__TinNhan__CuocTro__628FA481" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__LoiMoiKet__Nguoi__5535A963" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__LoiMoiKet__Nguoi__5629CD9C" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__ThanhVien__Nguoi__5DCAEF64" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__ThichBaiD__Nguoi__44FF419A" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__ThongBao__NguoiG__693CA210" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__ThongBao__NguoiN__68487DD7" ManuallyRouted="false" />
+        <AssociationConnector Association="MXH_MiniModel.FK__TinNhan__NguoiGu__6383C8BA" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

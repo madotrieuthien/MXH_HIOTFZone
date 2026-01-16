@@ -1,0 +1,153 @@
+﻿@model List<MXH_HIOTFZone.Models.NguoiDung>
+
+@{
+    ViewBag.Title = "TaoCuocTroChuyenRieng";
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+}
+
+
+<div id="create-private-chat" class="card" style="max-width:720px; margin: 24px auto; box-shadow: 0 6px 18px rgba(0,0,0,0.08); margin-top:70px">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Tạo cuộc trò chuyện riêng tư</h5>
+        <small class="text-muted">Chọn 1 bạn để bắt đầu</small>
+    </div>
+
+    <div class="card-body">
+
+        <!-- Search -->
+        <div class="mb-3">
+            <input id="friend-search" type="search" class="form-control" placeholder="Tìm bạn theo tên..." aria-label="Tìm bạn">
+        </div>
+
+        <!-- Friend list -->
+        <div style="max-height:360px; overflow:auto; border:1px solid #e9ecef; border-radius:8px; padding:8px;">
+            <ul id="friend-list" class="list-unstyled mb-0">
+
+                @foreach (var f in Model as List<MXH_HIOTFZone.Models.NguoiDung>)
+                {
+                    string avatar = string.IsNullOrEmpty(f.Avatar) ? "default.png" : f.Avatar;
+                    string nameLower = f.TenNguoiDung.ToLower();
+                    <li class="friend-item d-flex align-items-center p-2 rounded mb-1"
+                        data-id="@f.NguoiDungID"
+                        data-name="@f.TenNguoiDung"
+                        style="cursor:pointer;">
+
+                        <img src="/Images/Avatar/@avatar" class="rounded-circle me-2"
+                             style="width:42px;height:42px;object-fit:cover;">
+
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">@f.TenNguoiDung</div>
+                            @*<small class="text-muted">
+                                @(f.TrangThai == "Online" ? "Online" : "Offline")
+                            </small>*@
+                        </div>
+
+                        <div>
+                            <input type="radio" name="selectedFriend"
+                                   class="form-check-input friend-radio"
+                                   value="@f.NguoiDungID">
+                        </div>
+                    </li>
+                }
+
+            </ul>
+        </div>
+
+        <!-- Selected preview -->
+        <div id="selected-preview" class="mt-3 d-none">
+            <small class="text-muted">Bạn đã chọn:</small>
+            <div class="p-2 mt-1 border rounded" id="selected-name">-</div>
+        </div>
+    </div>
+
+    <div class="card-footer d-flex justify-content-end gap-2">
+        <button id="cancel-btn" type="button" class="btn btn-secondary">Hủy</button>
+        <button id="confirm-btn" type="button" class="btn btn-primary" disabled>Xác nhận</button>
+    </div>
+</div>
+
+
+@section scripts {
+    <script>
+        (function(){
+            const searchInput = document.getElementById('friend-search');
+            const friendItems = Array.from(document.querySelectorAll('.friend-item'));
+            const confirmBtn = document.getElementById('confirm-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const selectedPreview = document.getElementById('selected-preview');
+            const selectedName = document.getElementById('selected-name');
+
+            // Search
+            searchInput.addEventListener('input', function(e){
+                const q = e.target.value.toLowerCase();
+                friendItems.forEach(item => {
+                    const name = item.dataset.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const keyword = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                    item.style.display = (!keyword || name.includes(keyword)) ? '' : 'none';
+
+                });
+            });
+
+            // Click to select
+            friendItems.forEach(item => {
+                item.addEventListener('click', function(){
+                    const r = this.querySelector('.friend-radio');
+                    if(r){
+                        r.checked = true;
+                        updateSelected();
+                    }
+                });
+            });
+
+            // Radio change
+            document.querySelectorAll('.friend-radio').forEach(r => {
+                r.addEventListener('change', updateSelected);
+            });
+
+            function updateSelected(){
+                const sel = document.querySelector('.friend-radio:checked');
+                if(sel){
+                    const li = sel.closest('.friend-item');
+                    selectedName.textContent = li.dataset.name;
+                    selectedPreview.classList.remove('d-none');
+                    confirmBtn.disabled = false;
+                } else {
+                    selectedPreview.classList.add('d-none');
+                    confirmBtn.disabled = true;
+                }
+            }
+
+            // Cancel: clear selection và chuyển trang
+            cancelBtn.addEventListener('click', function(){
+                // Clear radio
+                document.querySelectorAll('.friend-radio').forEach(r => r.checked = false);
+                selectedPreview.classList.add('d-none');
+                confirmBtn.disabled = true;
+
+                // Chuyển sang trang CuocTroChuyen
+                window.location.href = '@Url.Action("CuocTroChuyen","HIOTFZone_Chat")';
+            });
+
+            // Confirm
+            confirmBtn.addEventListener('click', function(){
+                const sel = document.querySelector('.friend-radio:checked');
+                if(!sel) return;
+
+                fetch('@Url.Action("CreatePrivateChat","TaoCuocTroChuyen")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ friendId: sel.value })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if(data.success) window.location.href = data.chatUrl;
+                    else alert(data.error);
+                });
+            });
+
+        })();
+    </script>
+}

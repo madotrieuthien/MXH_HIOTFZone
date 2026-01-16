@@ -1,0 +1,101 @@
+﻿@model List<MXH_HIOTFZone.Models.NguoiDung>
+
+@{
+    ViewBag.Title = "Tạo cuộc trò chuyện nhóm";
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+}
+
+<div class="container mt-3" style="max-width:720px; margin-top:70px">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5>Tạo cuộc trò chuyện nhóm</h5>
+            <small class="text-muted">Chọn tối thiểu 3 người</small>
+        </div>
+
+        <div class="card-body">
+            <!-- Nhập tên group -->
+            <div class="mb-3">
+                <input type="text" id="group-name" class="form-control" placeholder="Tên nhóm...">
+            </div>
+
+            <!-- Search -->
+            <div class="mb-3">
+                <input type="text" id="user-search" class="form-control" placeholder="Tìm bạn...">
+            </div>
+
+            <!-- Danh sách bạn -->
+            <div style="max-height:360px; overflow:auto; border:1px solid #e9ecef; border-radius:8px; padding:8px;">
+                <ul id="user-list" class="list-unstyled mb-0">
+                    @foreach (var u in Model)
+                    {
+                        string avatar = string.IsNullOrEmpty(u.Avatar) ? "default.png" : u.Avatar;
+                        <li class="user-item d-flex align-items-center p-2 mb-1 rounded" data-name="@u.TenNguoiDung" style="cursor:pointer;">
+                            <input type="checkbox" class="form-check-input me-2" value="@u.NguoiDungID">
+                            <img src="/Images/Avatar/@avatar" class="rounded-circle me-2" style="width:40px;height:40px;">
+                            <strong>@u.TenNguoiDung</strong>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <button id="cancel-btn" class="btn btn-secondary">Hủy</button>
+            <button id="create-btn" class="btn btn-primary">Tạo nhóm</button>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+    (function(){
+        const searchInput = document.getElementById('user-search');
+        const userItems = Array.from(document.querySelectorAll('.user-item'));
+        const createBtn = document.getElementById('create-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+
+        // Search
+        searchInput.addEventListener('input', function(){
+            let q = this.value.toLowerCase();
+            q = q.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            userItems.forEach(item => {
+                let name = item.dataset.name.toLowerCase();
+                name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                item.style.display = (!q || name.includes(q)) ? '' : 'none';
+            });
+        });
+
+        // Click Hủy → về danh sách chat
+        cancelBtn.addEventListener('click', function(){
+            window.location.href = '@Url.Action("CuocTroChuyen","HIOTFZone_Chat")';
+        });
+
+        // Click Tạo nhóm
+        createBtn.addEventListener('click', function(){
+            const checked = Array.from(document.querySelectorAll('.user-item input:checked')).map(c=>c.value);
+            const groupName = document.getElementById('group-name').value.trim();
+
+            if(checked.length < 3){
+                alert("Phải chọn tối thiểu 3 người để tạo nhóm!");
+                return;
+            }
+
+            if(!groupName){
+                alert("Nhập tên nhóm!");
+                return;
+            }
+
+            fetch('@Url.Action("TaoCuocTroChuyenGroup","TaoCuocTroChuyen")', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ selectedUserIds: checked, groupName: groupName })
+            })
+            .then(r => r.json())
+            .then(data=>{
+                if(data.success) window.location.href = data.chatUrl;
+                else alert(data.error);
+            });
+        });
+    })();
+    </script>
+}

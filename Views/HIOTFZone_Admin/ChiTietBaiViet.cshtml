@@ -1,0 +1,127 @@
+﻿@model MXH_HIOTFZone.Models.BaiDang
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f3f4f6;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .admin-header {
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            padding: 20px;
+            color: white;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .post-img {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-header">
+        <h2>Chi tiết bài viết</h2>
+        <div class="mt-1">
+            Admin: <strong>@Session["AdminHoTen"]</strong>
+        </div>
+    </div>
+
+
+    <div class="container">
+
+        <!-- Thông tin người đăng -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="/Images/Avatar/@Model.NguoiDung.Avatar"
+                         class="rounded-circle" style="width:55px;height:55px;">
+                    <div class="ms-3">
+                        <h5 class="m-0">@Model.NguoiDung.TenNguoiDung</h5>
+                        <small class="text-muted">@Model.NgayTao.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                </div>
+
+                <!-- Ảnh bài viết -->
+                @if (!string.IsNullOrEmpty(Model.AnhUrl))
+                {
+                    <img src="/Images/BaiViet/@Model.AnhUrl" class="post-img mb-3" />
+                }
+
+                <!-- Nội dung -->
+                <p class="fs-5">@Model.NoiDung</p>
+            </div>
+        </div>
+
+
+        <!-- BÌNH LUẬN -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                Bình luận (@Model.BinhLuans.Count())
+            </div>
+
+            <div class="card-body">
+                @if (Model.BinhLuans.Count() == 0)
+                {
+                    <p class="text-muted">Chưa có bình luận nào.</p>
+                }
+                else
+                {
+                    foreach (var c in Model.BinhLuans.OrderBy(x => x.NgayTao))
+                    {
+                        // Xử lý avatar: nếu null thì dùng ảnh mặc định
+                        string avatarUrl = "/Images/Avatar/" + (c.NguoiDung.Avatar ?? "default.png");
+
+                        <div class="d-flex mb-2 align-items-start">
+                            <img src="@avatarUrl" class="rounded-circle me-2"
+                                 style="width:26px; height:26px; object-fit:cover; flex-shrink: 0;">
+
+                            <div>
+                                <div class="bg-light px-3 py-2 rounded-4">
+                                    <strong class="d-block text-dark" style="font-size: 13px;">@c.NguoiDung.TenNguoiDung</strong>
+                                    <span class="text-dark" style="font-size: 13px;">@c.NoiDung</span>
+                                </div>
+
+                                <small class="text-muted ms-2" style="font-size: 11px;">
+                                    @c.NgayTao.Value.ToString("dd/MM/yyyy HH:mm")
+                                </small>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+
+        <!-- Nút điều hướng -->
+        <div class="text-center mb-5">
+            <a href="@Url.Action("QuanLyBaiViet", "HIOTFZone_Admin")" class="btn btn-secondary px-4">
+                ⬅ Quay lại danh sách
+            </a>
+
+            <a href="@Url.Action("XoaBaiViet", "HIOTFZone_Admin", new { id = Model.BaiDangID })"
+               onclick="return confirm('Bạn chắc chắn muốn xóa bài viết này?');"
+               class="btn btn-danger px-4 ms-2">
+                Xóa bài viết
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>

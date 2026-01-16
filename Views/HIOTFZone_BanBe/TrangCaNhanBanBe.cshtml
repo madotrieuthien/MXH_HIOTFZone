@@ -1,0 +1,263 @@
+﻿@model MXH_HIOTFZone.Models.NguoiDung
+
+@{
+    ViewBag.Title = "Trang cá nhân: " + Model.TenNguoiDung;
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+
+    // 1. Lấy danh sách bài đăng từ ViewBag
+    var dsBaiDang = ViewBag.DSBaiDang as List<MXH_HIOTFZone.Models.BaiDang> ?? new List<MXH_HIOTFZone.Models.BaiDang>();
+
+    // 2. Lấy thông tin người dùng đang đăng nhập (để check like và avatar comment)
+    int currentUserId = Session["NguoiDungID"] != null ? (int)Session["NguoiDungID"] : 0;
+    string myAvatar = "/Images/Avatar/default.png";
+    if (Session["Avatar"] != null)
+    {
+        myAvatar = "/Images/Avatar/" + Session["Avatar"].ToString();
+    }
+}
+
+<style>
+    body, html {
+        height: 100%;
+    }
+    /* Cố định cột trái */
+    .left-panel {
+        padding-top: 20px;
+        height: calc(100vh - 60px);
+        position: sticky;
+        top: 60px;
+        overflow-y: hidden;
+    }
+    /* Cột phải cuộn bình thường */
+    .right-panel {
+        padding-top: 20px;
+        padding-bottom: 60px;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+
+        <div class="col-md-4 left-panel d-none d-md-block">
+            <div class="card shadow-sm border-0">
+                <div class="card-header text-center bg-primary text-white border-0 py-4"
+                     style="background: linear-gradient(45deg, #0d6efd, #0dcaf0);">
+                    <h4 class="fw-bold m-0">@Model.TenNguoiDung</h4>
+                </div>
+                <div class="card-body text-center pt-0">
+                    <div style="margin-top: -25px;">
+                        <img src="~/Images/Avatar/@(Model.Avatar ?? "default.png")"
+                             class="rounded-circle border border-4 border-white shadow"
+                             style="width:140px; height:140px; object-fit:cover;" alt="Avatar" />
+                    </div>
+
+                    <div class="mt-4 text-start px-3">
+                        <p class="mb-2">
+                            <i class="fa-solid fa-venus-mars text-muted me-2" style="width:20px;"></i>
+                            <strong>Giới tính:</strong> @Model.GioiTinh
+                        </p>
+                        <p class="mb-2">
+                            <i class="fa-solid fa-cake-candles text-muted me-2" style="width:20px;"></i>
+                            <strong>Ngày sinh:</strong> @(Model.NgaySinh.HasValue ? Model.NgaySinh.Value.ToString("dd/MM/yyyy") : "--")
+                        </p>
+                        <p class="mb-2">
+                            <i class="fa-solid fa-location-dot text-muted me-2" style="width:20px;"></i>
+                            <strong>Đến từ:</strong> @(!string.IsNullOrEmpty(Model.DiaChi) ? Model.DiaChi : "--")
+                        </p>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm rounded-pill">
+                            <i class="fa-solid fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 right-panel">
+            <h4 class="mb-4 fw-bold text-secondary border-bottom pb-2">Bài viết (@dsBaiDang.Count)</h4>
+
+            @if (dsBaiDang.Any())
+            {
+                foreach (var baiviet in dsBaiDang)
+                {
+                    string anhBaiViet = "/Images/BaiViet/" + baiviet.AnhUrl;
+                    string anhAvatar = "/Images/Avatar/" + (baiviet.NguoiDung.Avatar ?? "default.png");
+                    bool daLike = baiviet.ThichBaiDangs.Any(x => x.NguoiDungID == currentUserId);
+
+                    <div class="card p-3 mb-4 shadow-sm border-0 post-card" data-baidangid="@baiviet.BaiDangID">
+
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <img src="@anhAvatar" class="avatar rounded-circle" style="width:40px; height:40px; object-fit:cover;" />
+                            <div>
+                                <h6 class="m-0 fw-bold">@baiviet.NguoiDung.TenNguoiDung</h6>
+                                <small class="text-muted" style="font-size: 12px;">@baiviet.NgayTao</small>
+                            </div>
+                        </div>
+
+                        <p class="card-text mb-2">@baiviet.NoiDung</p>
+                        @if (!string.IsNullOrEmpty(baiviet.AnhUrl))
+                        {
+                            <div class="mb-3">
+                                <img src="@anhBaiViet" class="img-fluid rounded w-100" style="object-fit: contain; max-height: 500px; background-color:#f8f9fa;" />
+                            </div>
+                        }
+
+                        <div class="border-top border-bottom py-2 d-flex justify-content-between mt-2">
+                            <button class="btn btn-light flex-grow-1 btn-like @(daLike ? "text-primary" : "")" style="border:none;">
+                                <i class="@(daLike ? "fa-solid" : "fa-regular") fa-thumbs-up me-1"></i>
+                                Thích (<span class="like-count">@baiviet.ThichBaiDangs.Count()</span>)
+                            </button>
+
+                            <button class="btn btn-light flex-grow-1 btn-toggle-comment" style="border:none;">
+                                <i class="fa-regular fa-comment me-1"></i> Bình luận
+                            </button>
+                        </div>
+
+                        <div class="comment-section mt-3" style="display:none;">
+
+                            <div class="comment-list mb-3">
+                                @if (baiviet.BinhLuans != null)
+                                {
+                                    foreach (var bl in baiviet.BinhLuans.OrderBy(b => b.NgayTao))
+                                    {
+                                        string blAvatar = "/Images/Avatar/" + (bl.NguoiDung.Avatar ?? "default.png");
+                                        <div class="d-flex mb-2 align-items-start">
+                                            <img src="@blAvatar" class="avatar rounded-circle me-2"
+                                                 style="width:26px; height:26px; object-fit:cover; flex-shrink: 0;" />
+                                            <div class="bg-light px-3 py-2 rounded-4">
+                                                <strong class="d-block text-dark" style="font-size: 13px;">@bl.NguoiDung.TenNguoiDung</strong>
+                                                <span class="text-secondary" style="font-size: 13px;">@bl.NoiDung</span>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <div class="d-flex gap-2 align-items-center">
+                                <img src="@myAvatar" class="avatar rounded-circle"
+                                     style="width:26px; height:26px; object-fit:cover; flex-shrink: 0;" />
+                                <div class="position-relative w-100">
+                                    <input type="text" class="form-control rounded-pill bg-light comment-input py-1 px-3"
+                                           style="font-size: 14px;"
+                                           placeholder="Viết bình luận..."
+                                           data-id="@baiviet.BaiDangID">
+                                    <i class="fa-solid fa-paper-plane position-absolute top-50 end-0 translate-middle-y me-3 text-muted btn-send-comment"
+                                       style="cursor:pointer; font-size: 14px;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-regular fa-folder-open fa-3x mb-3 opacity-25"></i>
+                    <p>Người dùng này chưa có bài viết nào.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script>
+        $(function () {
+            // --- SIGNALR SETUP ---
+            var hub = $.connection.hIOTFZone_BaiDangHub;
+
+            // 1. Update Like
+            hub.client.updateLike = function (baiDangId, likeCount) {
+                var post = $('.post-card[data-baidangid="' + baiDangId + '"]');
+                post.find('.like-count').text(likeCount);
+            };
+
+            // 2. Update Comment
+            hub.client.addNewComment = function (baiDangId, tenUser, avatarUrl, noiDung) {
+                var post = $('.post-card[data-baidangid="' + baiDangId + '"]');
+                var commentList = post.find('.comment-list');
+
+                var newCommentHtml = `
+                    <div class="d-flex mb-2 align-items-start">
+                        <img src="${avatarUrl}" class="avatar rounded-circle me-2"
+                             style="width:26px; height:26px; object-fit:cover; flex-shrink: 0;">
+                        <div class="bg-light px-3 py-2 rounded-4">
+                            <strong class="d-block text-dark" style="font-size: 13px;">${tenUser}</strong>
+                            <span class="text-secondary" style="font-size: 13px;">${noiDung}</span>
+                        </div>
+                    </div>
+                `;
+                commentList.append(newCommentHtml);
+            };
+
+            $.connection.hub.start();
+
+            // --- EVENTS ---
+
+            // A. Toggle Comment
+            $(document).on('click', '.btn-toggle-comment', function () {
+                var post = $(this).closest('.post-card');
+                post.find('.comment-section').slideToggle();
+                setTimeout(function () { post.find('.comment-input').focus(); }, 400);
+            });
+
+            // B. Gửi bằng Enter
+            $(document).on('keypress', '.comment-input', function (e) {
+                if (e.which == 13) {
+                    var input = $(this);
+                    sendComment(input.data('id'), input.val(), input);
+                }
+            });
+
+            // C. Gửi bằng Nút
+            $(document).on('click', '.btn-send-comment', function () {
+                var input = $(this).siblings('.comment-input');
+                sendComment(input.data('id'), input.val(), input);
+            });
+
+            // AJAX Gửi comment
+            function sendComment(baiDangId, noiDung, inputElement) {
+                if (!noiDung.trim()) return;
+                $.ajax({
+                    url: '/HIOTFZone_BaiViet/GuiBinhLuan',
+                    type: 'POST',
+                    data: { baiDangId: baiDangId, noiDung: noiDung },
+                    success: function (res) {
+                        if (res.success) inputElement.val('');
+                        else alert(res.message);
+                    }
+                });
+            }
+
+            // D. Xử lý Like
+            $(document).on('click', '.btn-like', function () {
+                var btn = $(this);
+                var postDiv = btn.closest('.post-card');
+                var baiDangId = postDiv.data('baidangid');
+                var icon = btn.find('i');
+
+                // Optimistic UI
+                if (icon.hasClass('fa-regular')) {
+                    icon.removeClass('fa-regular').addClass('fa-solid text-primary');
+                    btn.addClass('text-primary');
+                } else {
+                    icon.removeClass('fa-solid text-primary').addClass('fa-regular');
+                    btn.removeClass('text-primary');
+                }
+
+                $.post('/HIOTFZone_BaiViet/ToggleLike', { baiDangId: baiDangId }, function (res) {
+                    if (res.success) {
+                        btn.find('.like-count').text(res.likeCount);
+                        btn.find('i').toggleClass('fa-regular fa-solid text-primary', res.liked);
+                        btn.find('i').toggleClass('fa-regular', !res.liked);
+                    } else alert(res.message);
+                });
+            });
+        });
+    </script>
+}

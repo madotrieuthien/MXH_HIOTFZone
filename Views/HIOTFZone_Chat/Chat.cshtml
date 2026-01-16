@@ -1,0 +1,175 @@
+﻿
+@{
+    ViewBag.Title = "Chat";
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+}
+@{
+
+    string avatarPath = "/Images/Avatar/" + ViewBag.Avatar.ToString();
+}
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid" style="height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #f0f2f5; overflow: hidden; margin-top: 20px;">
+    <div class="chat-window border rounded shadow-sm" style="width: 1000px; height: 600px; display: flex; flex-direction: column; background-color: #fff;">
+
+        <!-- HEADER -->
+        <div class="chat-header d-flex justify-content-between align-items-center p-2 border-bottom" style="background-color: #e9ecef;">
+            <div class="d-flex align-items-center" id="headerInfo">
+                <img src="@avatarPath" class="rounded-circle me-2" style="width:40px; height:40px;">
+                <strong>@ViewBag.TenHienThi</strong>
+            </div>
+            <button class="btn btn-light btn-sm" title="Thoát" onclick="window.location.href='@Url.Action("CuocTroChuyen")'">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- BODY -->
+        <div class="chat-body flex-grow-1 p-3" style="background-color: #f8f9fa; overflow-y: auto;" id="chatBody"></div>
+
+        <!-- FOOTER -->
+        <div class="chat-footer d-flex p-2 border-top">
+            <input type="text" class="form-control me-2" id="messageInput" placeholder="Nhập tin nhắn...">
+            <button class="btn btn-primary" id="sendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    body, html {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    .chat-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-body::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.2);
+        border-radius: 3px;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+<script src="~/signalr/hubs"></script>
+
+<script>
+
+    const sendBtn = document.getElementById('sendBtn');
+    const messageInput = document.getElementById('messageInput');
+    const chatBody = document.getElementById('chatBody');
+
+    let currentChatId = @ViewBag.CuocTroChuyenID; // ID cuộc trò chuyện từ Controller
+    let userId = @Session["NguoiDungID"];
+
+    // Render tin nhắn
+    function renderMessages(messages) {
+        chatBody.innerHTML = '';
+        messages.forEach(msg => {
+            const div = document.createElement('div');
+            if(msg.FromMe) {
+                div.classList.add('d-flex','justify-content-end','mb-2');
+                div.innerHTML = `<div class="p-2 rounded text-white" style="background-color:#0d6efd; max-width:70%;">${msg.NoiDung}</div>`;
+            } else {
+                div.classList.add('d-flex','mb-2');
+                div.innerHTML = `
+                    <img src="avatars/default.png" class="rounded-circle me-2" style="width:35px;height:35px;">
+                    <div class="p-2 rounded" style="background-color:#e2e3e5; max-width:70%;">${msg.NoiDung}</div>
+                `;
+            }
+
+            chatBody.appendChild(div);
+        });
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Load tin nhắn
+    function loadMessages(chatId) {
+        currentChatId = chatId;
+       $.getJSON('@Url.Action("jLayTinNhan", "HIOTFZone_Chat")', { id: chatId }, function(data){
+
+            renderMessages(data);
+        });
+    }
+
+    $(function() {
+    var chatHub = $.connection.chat; // Tên Hub của bạn
+    var roomId = '@ViewBag.CuocTroChuyenID';
+    var userName = '@Session["TenNguoiDung"]';
+        var avatar = '@Session["Avatar"]';
+        var loaiTN = '@ViewBag.Loai'
+
+
+
+    // Client nhận tin nhắn
+    chatHub.client.receiveMessage = function(sender, message, avatar) {
+        const div = document.createElement('div');
+        if (sender === userName) {
+            div.classList.add('d-flex', 'justify-content-end', 'mb-2');
+            div.innerHTML = `<div class="p-2 rounded text-white" style="background-color:#0d6efd; max-width:70%;">${message}</div>`;
+        }
+        else if (loaiTN === "Group") {
+            div.classList.add('d-flex', 'mb-2');
+            div.innerHTML = `
+                <div class="d-flex mb-2">
+                    <img src="/Images/Avatar/${avatar}" class="rounded-circle me-2" style="width:35px;height:35px;">
+                    <div>
+                        <strong class="d-block" style="font-size:0.9rem; color:#333;">${sender}</strong>
+                        <div class="p-2 rounded" style="background-color:#f1f3f5; max-width:300px; word-wrap:break-word;">
+                            ${message}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        }
+        else {
+            div.classList.add('d-flex', 'mb-2');
+            div.innerHTML = `
+            <div class="d-flex mb-2">
+
+                    <div class="p-2 rounded" style="background-color:#f1f3f5; max-width:300px; word-wrap:break-word;">
+                        ${message}
+                    </div>
+
+            </div>
+        `;
+
+        }
+        $('#chatBody').append(div);
+        $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
+
+    };
+
+    // Bắt đầu kết nối
+    $.connection.hub.start().done(function() {
+        // Join phòng
+        chatHub.server.joinRoom(roomId, userName);
+
+        // Gửi tin nhắn
+        $('#sendBtn').click(function() {
+            var msg = $('#messageInput').val().trim();
+            if (!msg) return;
+            chatHub.server.sendMessageToRoom(roomId, userName, msg, avatar);
+            $('#messageInput').val('');
+        });
+
+        $('#messageInput').keypress(function(e) {
+            if(e.which === 13) $('#sendBtn').click();
+        });
+    });
+});
+
+
+
+</script>
+
+

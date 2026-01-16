@@ -1,0 +1,313 @@
+﻿
+@{
+    ViewBag.Title = "CuocTroChuyen";
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style>
+
+
+    /* Wrapper căn giữa theo layout có navbar */
+    .wrapper {
+        width: 100%;
+        height: calc(100vh - 70px); /* Navbar Bootstrap cao ~56–70px */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 70px; /* tránh đè Navbar nếu navbar fixed */
+    }
+
+    /* Khối chat */
+    .chat-left {
+        width: 1000px;
+        height: 650px;
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+
+    .chat-header-left, .chat-filter {
+        flex-shrink: 0; /* Không bị cuộn */
+    }
+
+    .chat-list {
+        flex-grow: 1;
+        overflow-y: auto; /* chỉ phần chat-list cuộn */
+        margin-top: 15px;
+    }
+
+    .chat-item {
+        cursor: pointer;
+        transition: background-color 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+        .chat-item:hover {
+            background-color: #e2e6ea;
+        }
+
+    .text-truncate {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .badge {
+        margin-left: 50px;
+    }
+    .online-dot, .offline-dot {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+
+    .online-dot {
+        background-color: #00ff22; /* Xanh lá */
+    }
+
+    .offline-dot {
+        background-color: #b5b5b5; /* Xám */
+    }
+
+</style>
+
+<div class="wrapper">
+    <div class="chat-left">
+
+        <!-- Header / Form tìm kiếm -->
+        <div class="chat-header-left d-flex align-items-center mb-2">
+            <form class="d-flex flex-grow-1 me-2" method="get" action="@Url.Action("TimKiem", "HIOTFZone_Chat")">
+                <input class="form-control form-control-sm"
+                       type="search"
+                       name="keyword"
+                       placeholder="Tìm bạn theo tên..."
+                       value="@(Request.QueryString["keyword"] ?? "")"
+                       aria-label="Search">
+                <button class="btn btn-light btn-sm ms-2" type="submit">Tìm</button>
+            </form>
+
+            <div class="d-flex gap-1">
+                <a href="@Url.Action("TaoCuocTroChuyenRieng","TaoCuocTroChuyen")" class="btn btn-light btn-sm" title="Tin nhắn riêng 2 người">
+                    <i class="fa-solid fa-user"></i>
+                </a>
+
+                <a href="@Url.Action("TaoCuocTroChuyenGroup","TaoCuocTroChuyen")" class="btn btn-light btn-sm" title="Tin nhắn nhóm">
+                    <i class="fa-solid fa-users"></i>
+                </a>
+            </div>
+        </div>
+
+
+
+        <!-- Bộ lọc -->
+        <div class="chat-filter d-flex gap-2 justify-content-center mb-2">
+            <button class="btn btn-sm btn-outline-secondary active" data-filter="All">Tất cả</button>
+            <button class="btn btn-sm btn-outline-secondary" data-filter="Private">Riêng tư</button>
+            <button class="btn btn-sm btn-outline-secondary" data-filter="Group">Nhóm</button>
+        </div>
+
+
+        <!-- Danh sách chat -->
+        <div class="chat-list">
+            <div class="list-group list-group-flush" id="chatList"></div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Bootstrap JS Bundle -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+
+        $(document).ready(function() {
+            // Gọi action lấy danh sách chat
+            $.getJSON('@Url.Action("jLayDanhSachChat","HIOTFZone_Chat")', function(data) {
+                var chatList = $("#chatList");
+                chatList.empty();
+
+                $.each(data, function(index, item) {
+                    var AnhCuocTroChuyen = "";
+                    if(item.Loai==="Group"){
+                        AnhCuocTroChuyen = "Group.jpg";
+                    } else {
+                        AnhCuocTroChuyen = item.Avatar;
+                        if(item.TrangThaiOnline === false)
+                            var onlineDot = '<span class="offline-dot"></span>';
+                        else
+                            var onlineDot = '<span class="online-dot"></span>';
+                            
+                    };
+
+                    if (item.Loai === "Group") {
+                        var chatItem = `
+                               <a href="#" class="chat-item d-flex align-items-center p-2 border-bottom" data-id="${item.CuocTroChuyenID}" data-loai="${item.Loai}">
+                                <img src="/Images/Avatar/${AnhCuocTroChuyen}" class="avatar rounded-circle me-2" style="width:40px;height:40px;">
+
+                                <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+                                    <!-- Tên nhóm bên trái -->
+                                    <strong>${item.TenCuocTroChuyen}</strong>
+
+                                    <!-- Nút Sửa/Xóa bên phải -->
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary edit-group-btn me-1" data-id="${item.CuocTroChuyenID}" title="Đổi tên">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-group-btn" data-id="${item.CuocTroChuyenID}" title="Xóa nhóm">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </a>
+
+                            `;
+                        chatList.append(chatItem);
+                    }
+                    else {
+                        var chatItem = `
+                                            <a href="#" class="chat-item d-flex align-items-center p-2 border-bottom"
+                                               data-id="${item.CuocTroChuyenID}" data-loai="${item.Loai}">
+
+                                                <div class="position-relative me-2">
+                                                    <img src="/Images/Avatar/${AnhCuocTroChuyen}"
+                                                         class="avatar rounded-circle"
+                                                         style="width:40px;height:40px;">
+                                                    ${onlineDot}
+                                                </div>
+
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex justify-content-between">
+                                                        <strong>${item.TenCuocTroChuyen}</strong>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        `;
+                        chatList.append(chatItem);
+                    }
+
+                });
+            });
+
+            // Bắt sự kiện click chat-item
+            $(document).on("click", ".chat-item", function() {
+                var id = $(this).data("id");
+                // Chuyển sang View Chat với query string ?id=...
+                window.location.href = '@Url.Action("Chat","HIOTFZone_Chat")?id=' + id;
+            });
+        });
+         // Lấy userId từ session (Razor) -> biến JS
+    const currentUserId = @(Session["NguoiDungID"] == null ? 0 : (int)Session["NguoiDungID"]);
+        let allChats = []; // lưu tất cả chat sau khi load
+
+// Load danh sách chat
+$.getJSON('@Url.Action("jLayDanhSachChat","HIOTFZone_Chat")', function(data) {
+    allChats = data; // lưu tạm
+    renderChatList(allChats);
+});
+
+// Hàm render chat
+function renderChatList(chats) {
+    var chatList = $("#chatList");
+    chatList.empty();
+
+    $.each(chats, function(index, item) {
+        var AnhCuocTroChuyen = item.Loai === "Group" ? "Group.jpg" : item.Avatar;
+        if (item.Loai === "Group") {
+            var chatItem = `
+                               <a href="#" class="chat-item d-flex align-items-center p-2 border-bottom" data-id="${item.CuocTroChuyenID}" data-loai="${item.Loai}">
+                                <img src="/Images/Avatar/${AnhCuocTroChuyen}" class="avatar rounded-circle me-2" style="width:40px;height:40px;">
+
+                                <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+                                    <!-- Tên nhóm bên trái -->
+                                    <strong>${item.TenCuocTroChuyen}</strong>
+
+                                    <!-- Nút Sửa/Xóa bên phải -->
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary edit-group-btn me-1" data-id="${item.CuocTroChuyenID}" title="Đổi tên">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-group-btn" data-id="${item.CuocTroChuyenID}" title="Xóa nhóm">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </a>
+
+                            `;
+            chatList.append(chatItem);
+        }
+        else {
+            var chatItem = `
+                                <a href="#" class="chat-item d-flex align-items-center p-2 border-bottom" data-id="${item.CuocTroChuyenID}" data-loai="${item.Loai}">
+                                    <img src="/Images/Avatar/${AnhCuocTroChuyen}" class="avatar rounded-circle me-2" style="width:40px;height:40px;">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>${item.TenCuocTroChuyen}</strong>
+                                        </div>
+
+                                    </div>
+                                </a>
+`;
+            chatList.append(chatItem);
+        }
+    });
+}
+
+// Lọc theo loại khi bấm nút
+$(".chat-filter button").click(function() {
+    $(".chat-filter button").removeClass("active");
+    $(this).addClass("active");
+
+    var filter = $(this).data("filter");
+    if(filter === "All") {
+        renderChatList(allChats);
+    } else {
+        var filtered = allChats.filter(c => c.Loai === filter);
+        renderChatList(filtered);
+    }
+});
+// Đổi tên group
+        $(document).on("click", ".edit-group-btn", function() {
+            var id = $(this).data("id");
+            var newName = prompt("Nhập tên nhóm mới:");
+            if(newName && newName.trim() !== "") {
+                $.post('@Url.Action("DoiTenGroup","HIOTFZone_Chat")', { id: id, newName: newName }, function(res) {
+                    if (res.success) {
+                        alert("Đổi tên thành công!");
+                        window.location.href = resp.redirectUrl; // quay về danh sách
+                    }
+                    else alert("Lỗi: " + res.error);
+                });
+            }
+        });
+
+        // Xóa group
+        $(document).on("click", ".delete-group-btn", function() {
+            if(!confirm("Bạn có chắc muốn xóa nhóm này?")) return;
+            var id = $(this).data("id");
+            $.post('@Url.Action("XoaGroup","HIOTFZone_Chat")', { id: id }, function(res) {
+                if (res.success) {
+                    alert("Xóa nhóm thành công!");
+                    window.location.href = resp.redirectUrl; // quay về danh sách
+                }
+                else alert("Lỗi: " + res.error);
+            });
+        });
+
+</script>
+
+
+

@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "Dashboard Admin";
+    Layout = null;   // Không dùng Layout
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>Admin Dashboard</title>
+
+    <style>
+        body {
+            background: #f1f3f7;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .dash-box {
+            background: white;
+            border-radius: 16px;
+            padding: 35px;
+            text-align: center;
+            transition: 0.3s ease;
+            border: 1px solid #ddd;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+            .dash-box:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            }
+
+            .dash-box i {
+                font-size: 60px;
+                margin-bottom: 15px;
+                color: #555;
+            }
+
+        .header-bar {
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            padding: 20px 0;
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+            .header-bar h2 {
+                margin: 0;
+                font-weight: 600;
+            }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header-bar">
+        <h2>Xin chào, @Session["AdminHoTen"]</h2>
+        <p class="mt-1">Bảng điều khiển quản trị hệ thống</p>
+        <a href="@Url.Action("DangXuat","HIOTFZone_Admin")" class="btn btn-light btn-sm mt-2">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </a>
+</div>
+
+    <div class="container">
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+                <a href="@Url.Action("QuanLyTaiKhoan","HIOTFZone_Admin")" style="text-decoration:none;">
+                    <div class="dash-box">
+                        <i class="fa-solid fa-users"></i>
+                        <h3 class="mt-3">Quản lý tài khoản</h3>
+                        <p class="text-muted">Theo dõi & kiểm soát người dùng</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6">
+                <a href="@Url.Action("QuanLyBaiViet","HIOTFZone_Admin")" style="text-decoration:none;">
+                    <div class="dash-box">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <h3 class="mt-3">Quản lý bài viết</h3>
+                        <p class="text-muted">Giám sát nội dung bài đăng</p>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FontAwesome -->
+    <script src="https://kit.fontawesome.com/a2e860f5c8.js" crossorigin="anonymous"></script>
+
+</body>
+</html>

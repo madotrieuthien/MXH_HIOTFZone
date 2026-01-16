@@ -1,0 +1,50 @@
+﻿
+@{
+    ViewBag.Title = "TaoBaiViet";
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+}
+
+<div style="display:flex; justify-content:center; margin-top:70px;">
+    <div style="width:800px; box-shadow:0 0 10px rgba(0,0,0,0.1); border-radius:8px; padding:16px; background-color:white;">
+        <form action="/HIOTFZone_BaiViet/TaoBaiViet" method="post" enctype="multipart/form-data">
+
+            <div class="mb-3">
+                <textarea name="NoiDung" class="form-control" rows="4" placeholder="Bạn đang nghĩ gì?" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <input type="file" name="AnhBaiDang" id="AnhBaiDang" class="form-control" accept="image/*" />
+                <div id="preview" style="margin-top:8px; display:flex; flex-wrap:wrap;"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2">Đăng bài</button>
+            <a href="@Url.Action("Index","HIOTFZone")" class="btn btn-danger w-100 py-2" style="margin-top:10px">Hủy</a>
+
+
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById("AnhBaiDang").addEventListener("change", function () {
+        const previewDiv = document.getElementById("preview");
+        previewDiv.innerHTML = "";
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.style.width = "200px";
+                img.style.height = "200px";
+                img.style.objectFit = "cover";
+                img.classList.add("shadow-sm", "rounded");
+                previewDiv.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
+
+

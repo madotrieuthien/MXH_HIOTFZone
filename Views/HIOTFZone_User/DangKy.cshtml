@@ -1,0 +1,211 @@
+﻿@{
+    ViewBag.Title = "Đăng ký";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Đăng ký</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #ffb86b);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .auth-container::before {
+                content: "";
+                position: absolute;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle at top left, rgba(255,107,107,0.2), transparent 50%);
+                top: -50%;
+                left: -50%;
+                z-index: 0;
+                pointer-events: none;
+            }
+
+            .auth-container h2 {
+                margin-bottom: 20px;
+                color: #ff6b6b;
+                font-weight: 700;
+                font-size: 1.8rem;
+                position: relative;
+                z-index: 1;
+            }
+
+        .alert {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .alert-error {
+            background-color: #ffdddd;
+            color: #d8000c;
+            border: 1px solid #d8000c;
+        }
+
+        .alert-success {
+            background-color: #ddffdd;
+            color: #4f8a10;
+            border: 1px solid #4f8a10;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+            .input-group i {
+                position: absolute;
+                top: 50%;
+                left: 12px;
+                transform: translateY(-50%);
+                color: #888;
+            }
+
+        .auth-container input, .auth-container select {
+            width: 400px;
+            padding: 12px 12px 12px 40px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: 0.3s;
+        }
+
+            .auth-container input:focus, .auth-container select:focus {
+                border-color: #ff6b6b;
+                box-shadow: 0 0 5px rgba(255,107,107,0.5);
+            }
+
+        .auth-container button {
+            width: 200px;
+            padding: 12px;
+            background: #ff6b6b;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 1;
+        }
+
+            .auth-container button:hover {
+                background: #ff3b30;
+            }
+
+        .auth-footer {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            z-index: 1;
+            position: relative;
+        }
+
+            .auth-footer a {
+                color: #1877F2;
+                text-decoration: none;
+            }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Đăng ký</h2>
+
+        <!-- Hiển thị thông báo lỗi hoặc thành công -->
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-error">
+                <i class="fa fa-exclamation-circle"></i> @ViewBag.Error
+            </div>
+        }
+        else if (ViewBag.Success != null)
+        {
+            <div class="alert alert-success">
+                <i class="fa fa-check-circle"></i> @ViewBag.Success
+            </div>
+        }
+
+    <form action="/HIOTFZone_User/DangKy" method="post">
+
+        <!-- Họ tên -->
+        <div class="input-group">
+            <i class="fa fa-user"></i>
+            <input type="text" name="TenKH" placeholder="Họ và tên" required />
+        </div>
+
+        <!-- Giới tính -->
+        <div class="input-group">
+            <i class="fa fa-venus-mars"></i>
+            <select name="GioiTinh" style="width: 455px; padding: 12px 12px 12px 40px; border-radius: 8px; border: 1px solid #ccc; outline: none; cursor: pointer; color: #555;">
+                <option value="" disabled selected>Chọn giới tính</option>
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+                <option value="Khác">Khác</option>
+            </select>
+        </div>
+
+        <!-- Ngày sinh -->
+        <div class="input-group">
+            <i class="fa fa-calendar"></i>
+            <input type="date" name="NgaySinh" placeholder="Ngày sinh" />
+        </div>
+
+        <!-- Địa chỉ -->
+        <div class="input-group">
+            <i class="fa fa-location-dot"></i>
+            <input type="text" name="DiaChi" placeholder="Địa chỉ" />
+        </div>
+
+        <!-- Email -->
+        <div class="input-group">
+            <i class="fa fa-envelope"></i>
+            <input type="email" name="Email" placeholder="Email" required />
+        </div>
+
+        <!-- Mật khẩu -->
+        <div class="input-group">
+            <i class="fa fa-lock"></i>
+            <input type="password" name="MatKhau" placeholder="Mật khẩu" required />
+        </div>
+
+        <!-- Xác nhận mật khẩu -->
+        <div class="input-group">
+            <i class="fa fa-lock"></i>
+            <input type="password" name="XacNhanMatKhau" placeholder="Xác nhận mật khẩu" required />
+        </div>
+
+        <button type="submit">Đăng ký</button>
+    </form>
+
+        <div class="auth-footer">
+            <p>Đã có tài khoản? <a href="@Url.Action("DangNhap", "HIOTFZone_User")">Đăng nhập</a></p>
+        </div>
+    </div>
+</body>
+</html>

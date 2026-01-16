@@ -1,0 +1,90 @@
+﻿@{
+    ViewBag.Title = "Quản lý bài viết";
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+
+    // Lấy thông tin người dùng hiện tại
+    string myAvatar = "/Images/Avatar/default.png";
+    if (Session["Avatar"] != null)
+    {
+        myAvatar = "/Images/Avatar/" + Session["Avatar"].ToString();
+    }
+    string myName = Session["TenNguoiDung"] as string ?? "Tôi";
+}
+
+<div class="col-lg-6 mx-auto" style="padding-top:60px">
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="fw-bold m-0">Bài viết của tôi</h4>
+        <a href="@Url.Action("TaoBaiViet", "HIOTFZone_BaiViet")" class="btn btn-primary btn-sm rounded-pill">
+            <i class="fa-solid fa-plus"></i> Viết mới
+        </a>
+    </div>
+
+    @if (ViewBag.BaiDang != null && ((List<MXH_HIOTFZone.Models.BaiDang>)ViewBag.BaiDang).Any())
+    {
+        foreach (var bai in (List<MXH_HIOTFZone.Models.BaiDang>)ViewBag.BaiDang)
+        {
+            string anhBaiViet = "/Images/BaiViet/" + bai.AnhUrl;
+
+            <div class="card p-3 mb-4 shadow-sm border-0">
+
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="@myAvatar" class="rounded-circle border" width="40" height="40" style="object-fit:cover;">
+                        <div>
+                            <h6 class="m-0 fw-bold">@myName</h6>
+                            <small class="text-muted" style="font-size: 12px;">
+                                @bai.NgayTao.Value.ToString("dd/MM/yyyy HH:mm")
+                                <i class="fa-solid fa-earth-americas ms-1"></i>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm rounded-circle" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            
+                            
+                            <li>
+                                <form action="/HIOTFZone_CaNhan/XoaBaiDang" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.');">
+                                    <input type="hidden" name="BaiDangID" value="@bai.BaiDangID" />
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fa-solid fa-trash me-2"></i> Xóa bài viết
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p class="card-text mb-3" style="white-space: pre-wrap;">@bai.NoiDung</p>
+
+                @if (!string.IsNullOrEmpty(bai.AnhUrl))
+                {
+                    <div class="mb-3">
+                        <img src="@anhBaiViet" class="img-fluid rounded w-100" style="max-height: 500px; object-fit: contain; background-color: #f8f9fa;">
+                    </div>
+                }
+
+                <div class="border-top pt-2 d-flex gap-3 text-muted small">
+                    <span><i class="fa-solid fa-thumbs-up"></i> @(bai.ThichBaiDangs?.Count ?? 0) lượt thích</span>
+                    <span><i class="fa-solid fa-comment"></i> @(bai.BinhLuans?.Count ?? 0) bình luận</span>
+                </div>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center mt-5 p-5 bg-white rounded shadow-sm">
+            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" width="100" class="mb-3 opacity-50">
+            <h5 class="text-muted">Bạn chưa đăng bài viết nào</h5>
+            <p class="text-muted small">Hãy chia sẻ khoảnh khắc đầu tiên của bạn ngay bây giờ!</p>
+            <a href="@Url.Action("TaoBaiViet", "HIOTFZone_BaiViet")" class="btn btn-primary mt-2">
+                Đăng bài ngay
+            </a>
+        </div>
+    }
+</div>

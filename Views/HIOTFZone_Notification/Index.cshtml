@@ -1,0 +1,103 @@
+﻿@using MXH_HIOTFZone.Models
+@model IEnumerable<ThongBao>
+@{
+    Layout = "~/Views/Shared/HIOTFZone_Layout.cshtml";
+}
+@if (Model != null && Model.Any())
+{
+    foreach (var item in Model)
+    {
+        // 1. Logic kiểm tra đã đọc chưa để đổi màu nền
+        // Chưa đọc (DaDoc=false): Nền hơi xám (bg-light) hoặc trắng nổi bật
+        // Đã đọc (DaDoc=true): Nền trắng (bg-white)
+        string bgClass = (item.DaDoc == true) ? "bg-white" : "bg-light";
+
+        // 2. Logic lấy Avatar người gửi
+        // Cần đảm bảo Model của bạn có Navigation Property nối sang bảng NguoiDung
+        // Ví dụ: item.NguoiDung1 là người gửi (bạn cần check lại file .edmx xem tên quan hệ là gì)
+        string avatarSender = "/Images/Avatar/default.png";
+
+        // Giả sử relation tên là NguoiDung (người gửi)
+        if (item.NguoiDung != null && !string.IsNullOrEmpty(item.NguoiDung.Avatar))
+        {
+            avatarSender = "/Images/Avatar/" + item.NguoiDung.Avatar;
+        }
+
+        <div class="@bgClass border-bottom position-relative notification-item">
+            <a href="@item.Link" class="d-flex align-items-center px-3 py-3 text-decoration-none text-dark">
+
+                <div class="flex-shrink-0 me-3 position-relative">
+                    <img src="@avatarSender" class="rounded-circle border" width="48" height="48" style="object-fit:cover;" alt="Avt">
+
+                    @if (item.LoaiThongBao == "LIKE")
+                    {
+                        <span class="position-absolute bottom-0 end-0 bg-primary border border-white rounded-circle d-flex align-items-center justify-content-center" style="width:18px; height:18px;">
+                            <i class="fa-solid fa-thumbs-up text-white" style="font-size:10px;"></i>
+                        </span>
+                    }
+                    else if (item.LoaiThongBao == "COMMENT")
+                    {
+                        <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle d-flex align-items-center justify-content-center" style="width:18px; height:18px;">
+                            <i class="fa-solid fa-comment text-white" style="font-size:10px;"></i>
+                        </span>
+                    }
+                </div>
+
+                <div class="flex-grow-1 pe-3">
+                    <p class="mb-1 text-break" style="font-size: 14px; line-height: 1.4;">
+                        @Html.Raw(item.NoiDung)
+                    </p>
+                    <small class="@(item.DaDoc == true ? "text-muted" : "text-primary fw-bold")" style="font-size: 12px;">
+                        @CalculateTimeAgo(item.NgayTao)
+                    </small>
+                </div>
+
+                @if (item.DaDoc != true)
+                {
+                    <span class="bg-primary rounded-circle" style="width: 10px; height: 10px;"></span>
+                }
+            </a>
+        </div>
+    }
+}
+else
+{
+    <div class="text-center p-5 text-muted">
+        <div class="mb-3">
+            <i class="fa-regular fa-bell-slash fa-3x opacity-50"></i>
+        </div>
+        <p class="m-0 fw-bold">Chưa có thông báo nào</p>
+        <small>Khi có hành động mới, chúng sẽ hiện ở đây.</small>
+    </div>
+}
+
+<style>
+    .notification-item:hover {
+        background-color: #f2f4f7 !important;
+        cursor: pointer;
+    }
+    /* Ẩn thanh cuộn xấu xí nếu cần */
+    #notiListContainer::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #notiListContainer::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 4px;
+    }
+</style>
+
+@functions {
+    public string CalculateTimeAgo(DateTime? date)
+    {
+        if (!date.HasValue) return "";
+        var timeSpan = DateTime.Now - date.Value;
+
+        if (timeSpan.TotalMinutes < 1) return "Vừa xong";
+        if (timeSpan.TotalMinutes < 60) return (int)timeSpan.TotalMinutes + " phút trước";
+        if (timeSpan.TotalHours < 24) return (int)timeSpan.TotalHours + " giờ trước";
+        if (timeSpan.TotalDays < 7) return (int)timeSpan.TotalDays + " ngày trước";
+
+        return date.Value.ToString("dd/MM/yyyy lúc HH:mm");
+    }
+}

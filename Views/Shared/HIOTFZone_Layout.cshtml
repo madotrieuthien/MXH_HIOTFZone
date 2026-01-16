@@ -1,0 +1,296 @@
+﻿@using HIOTFZone.Helpers
+
+
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MXH Mini HIOTFZone</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/Content/style.css">
+    @RenderSection("styles", required: false)
+</head>
+
+<body>
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg topbar px-4 py-2 bg-primary fixed-top">
+
+        <a class="navbar-brand d-flex align-items-center brand text-white" href="#">
+            <img src="~/Images/Logo/logo.png" alt="" style="width: 120px; height: auto;">
+        </a>
+
+        <form method="get" action="/HIOTFZone_TimKiem/KetQua" class="d-flex ms-3 me-auto">
+            <input id="globalSearchBox" name="keyword" class="form-control form-control-sm" type="search" autocomplete="off" value="@(ViewBag.Keyword ?? "")" placeholder="Tìm bài viết..." />
+            <button class="btn btn-light btn-sm ms-2" type="submit">Tìm</button>
+        </form>
+
+
+
+
+
+        <div class="d-flex align-items-center gap-2">
+
+            <!-- Nút Home -->
+            <a href="@Url.Action("Index", "HIOTFZone")" class="btn btn-light btn-sm position-relative d-flex align-items-center justify-content-center">
+                <i class="fa-solid fa-house"></i>
+            </a>
+
+
+            <!-- Nút Bạn bè -->
+            <a href="@Url.Action("BanBe", "HIOTFZone_BanBe")" class="btn btn-light btn-sm position-relative d-flex align-items-center justify-content-center">
+                <i class="fa-solid fa-user-friends"></i>
+                @*<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                3
+            </span>*@
+            </a>
+
+
+            <!-- Nút Thông báo -->
+            <div class="dropdown">
+                <a href="#" id="notiDropdown"
+                   class="btn btn-light btn-sm position-relative d-flex align-items-center justify-content-center"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="notiCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">
+                        0
+                    </span>
+                </a>
+
+                <div class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notiDropdown" style="width: 360px; max-height: 500px; padding: 0;">
+
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                        <h6 class="m-0 fw-bold">Thông báo</h6>
+                        <a href="#" onclick="markAllRead()" style="font-size: 12px; text-decoration: none;">Đánh dấu đã đọc</a>
+                    </div>
+
+                    <div id="notiListContainer" style="overflow-y: auto; max-height: 400px;">
+                        <div class="text-center p-3 text-muted">
+                            <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                        </div>
+                    </div>
+
+                    <div class="border-top text-center p-2 bg-light">
+                        <a href="@Url.Action("Index","HIOTFZone_Notification")" class="text-decoration-none fw-bold small text-primary">
+                            Xem tất cả thông báo
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nút Tin nhắn -->
+            <a href="@Url.Action("CuocTroChuyen", "HIOTFZone_Chat")" id="iconMessage" class="btn btn-light btn-sm position-relative d-flex align-items-center justify-content-center">
+                <i class="fa-solid fa-comment"></i>
+                @*<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                2
+            </span>*@
+            </a>
+
+            <!-- Avatar + Menu -->
+            <div class="dropdown">
+                @if (Session["TenNguoiDung"] == null)
+                {
+                    <!-- Khi chưa đăng nhập -->
+                    <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                       href="#" data-bs-toggle="dropdown">
+
+                        <strong>Tài Khoản</strong>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="@Url.Action("Index", "HIOTFZone_User")">Đăng nhập</a></li>
+                        <li><a class="dropdown-item" href="@Url.Action("DangKy", "HIOTFZone_User")">Đăng ký</a></li>
+                    </ul>
+                }
+                else
+                {
+
+                    string avatarPath = "/Images/Avatar/" + Session["Avatar"].ToString();
+
+
+
+                    <!-- Khi đã đăng nhập -->
+                    <a class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                       href="#" data-bs-toggle="dropdown">
+                        <img src="@avatarPath"
+                             class="avatar me-2" style="width:35px; height:35px; border-radius:50%;">
+                        <strong>@Session["TenNguoiDung"]</strong>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="@Url.Action("TrangCaNhan", "HIOTFZone_CaNhan")">Trang cá nhân</a></li>
+                        <li><a class="dropdown-item" href="@Url.Action("DoiMatKhau", "HIOTFZone_CaNhan")">Đổi mật khẩu</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="@Url.Action("DangXuat", "HIOTFZone_User")">Đăng xuất</a></li>
+                    </ul>
+                }
+            </div>
+
+
+        </div>
+    </nav>
+
+
+
+
+    <!-- Main Container -->
+    @RenderBody()
+
+
+    <!-- Footer -->
+    <footer style="
+        background: linear-gradient(90deg, #ff6b6b, #ffb86b);
+        color: white;
+        text-align: center;
+        padding: 15px;
+        font-size: 0.9rem;
+        border-radius: 10px 10px 0 0;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+        margin-top: 200px;
+    ">
+        &copy; 2025 HIOTFZone. All rights reserved. | Designed with Trung Linh Thiên
+    </footer>
+
+
+
+
+
+
+
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="/signalr/hubs"></script>
+
+    <!-- Custom JS -->
+    <script src="~/Scripts/app.js"></script>
+
+    <script>
+    // Lấy userId từ session (Razor) -> biến JS
+    const currentUserId = @(Session["NguoiDungID"] == null ? 0 : (int)Session["NguoiDungID"]);
+    </script>
+    <!--Xóa Thông Báo Khi Xem-->
+    <script>
+        // Xử lý sự kiện khi bấm vào nút chuông (dropdown mở ra)
+        var notiDropdown = document.getElementById('notiDropdown');
+        if (notiDropdown) {
+            notiDropdown.addEventListener('show.bs.dropdown', function () {
+
+                // 1. Load danh sách thông báo vào khung
+                $('#notiListContainer').load('/HIOTFZone_Notification/GetNotificationPopup');
+
+                // 2. Ẩn số lượng badge ngay lập tức cho trải nghiệm mượt
+                $('#notiCount').hide();
+
+                // 3. Gọi Ajax báo server là đã đọc hết (để lần sau load lại trang số = 0)
+                $.ajax({
+                    url: '/HIOTFZone_Notification/MarkAsRead',
+                    type: 'POST',
+                    success: function () {
+                        console.log("Đã đánh dấu đã đọc");
+                    }
+                });
+            });
+        }
+
+        // Hàm đánh dấu đã đọc thủ công (nút nhỏ trong popup)
+        function markAllRead() {
+            $.ajax({
+                url: '/HIOTFZone_Notification/MarkAsRead',
+                type: 'POST',
+                success: function () {
+                    // Reload lại list để mất màu xanh (unread)
+                    $('#notiListContainer').load('/HIOTFZone_Notification/GetNotificationPopup');
+                }
+            });
+        }
+        function updateNotiCount() {
+            if (currentUserId === 0) return; // chưa đăng nhập
+
+            $.ajax({
+                url: '/HIOTFZone_Notification/UnreadCount',
+                type: 'GET',
+                success: function (data) {
+                    var count = data.count || 0;
+                    var el = $('#notiCount');
+                    if (count > 0) {
+                        el.text(count);
+                        el.show();
+                    } else {
+                        el.hide();
+                    }
+                }
+            });
+        }
+
+        // Gọi lần đầu
+        updateNotiCount();
+
+        // Polling mỗi 2 giây
+        setInterval(updateNotiCount, 2000);
+    </script>
+    <script>
+        let typingTimer;
+        let delay = 3000; // 3s sau khi ngừng gõ sẽ thực hiện tìm kiếm
+
+        $("#globalSearchBox").on("keyup", function () {
+            clearTimeout(typingTimer);
+            let keyword = $(this).val().trim();
+
+            typingTimer = setTimeout(function () {
+                window.location.href = "/HIOTFZone_TimKiem/KetQua?keyword=" + encodeURIComponent(keyword);
+            }, delay);
+        });
+    </script>
+    <script>
+
+    // Xử lý sự kiện khi bấm vào nút chuông (dropdown mở ra)
+    var notiDropdown = document.getElementById('notiDropdown');
+    if (notiDropdown) {
+        notiDropdown.addEventListener('show.bs.dropdown', function () {
+
+            // 1. Load danh sách thông báo vào khung
+            $('#notiListContainer').load('/HIOTFZone_Notification/GetNotificationPopup');
+
+            // 2. Ẩn số lượng badge ngay lập tức cho trải nghiệm mượt
+            $('#notiCount').hide();
+
+            // 3. Gọi Ajax báo server là đã đọc hết (để lần sau load lại trang số = 0)
+            $.ajax({
+                url: '/HIOTFZone_Notification/MarkAsRead',
+                type: 'POST',
+                success: function () {
+                    console.log("Đã đánh dấu đã đọc");
+                }
+            });
+        });
+    }
+
+    // Hàm đánh dấu đã đọc thủ công (nút nhỏ trong popup)
+    function markAllRead() {
+        $.ajax({
+            url: '/HIOTFZone_Notification/MarkAsRead',
+            type: 'POST',
+            success: function () {
+                // Reload lại list để mất màu xanh (unread)
+                $('#notiListContainer').load('/HIOTFZone_Notification/GetNotificationPopup');
+            }
+        });
+    }
+</script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
